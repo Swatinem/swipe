@@ -24,6 +24,7 @@ function Swipe(el) {
   if (!el) throw new TypeError('Swipe() requires an element');
   this.el = el;
   this.move = null;
+  this.threshold(5);
   this.bind();
 }
 
@@ -42,13 +43,9 @@ Emitter(Swipe.prototype);
 Swipe.prototype.bind = function(){
   this.events = events(this.el, this);
   this.events.bind('mousedown', 'ontouchstart');
-  this.events.bind('mousemove', 'ontouchmove');
   this.events.bind('touchstart');
-  this.events.bind('touchmove');
 
   this.docEvents = events(document, this);
-  this.docEvents.bind('mouseup', 'ontouchend');
-  this.docEvents.bind('touchend');
 };
 
 /**
@@ -60,6 +57,11 @@ Swipe.prototype.bind = function(){
 Swipe.prototype.unbind = function(){
   this.events.unbind();
   this.docEvents.unbind();
+};
+
+
+Swipe.prototype.threshold = function(n){
+  this._threshold = n;
 };
 
 /**
@@ -83,6 +85,12 @@ Swipe.prototype.ontouchstart = function (e){
     dy: 0,
     dt: 0
   };
+
+  this.docEvents.bind('mousemove', 'ontouchmove');
+  this.docEvents.bind('touchmove');
+  this.docEvents.bind('mouseup', 'ontouchend');
+  this.docEvents.bind('touchend');
+
   this.emit('swipestart', this.move);
 };
 
@@ -141,17 +149,13 @@ Swipe.prototype.ontouchend = function(e){
   move.dy = move.y - move.start_y;
   move.dt = move.t - move.start_t;
 
+  this.docEvents.unbind();
+
   this.emit('swipeend', move);
 
-  if (move.dx < 0) {
-    this.emit('swipeleft', move);
-  } else {
-    this.emit('swiperight', move);
-  }
+  if (Math.abs(move.dx) > this._threshold)
+    this.emit(move.dx < 0 'swipeleft' : 'swiperight', move);
 
-  if (move.dy < 0) {
-    this.emit('swipeup', move);
-  } else {
-    this.emit('swipedown', move);
-  }
+  if (Math.abs(move.dy) > this._threshold)
+    this.emit(move.dy < 0 'swipeup' : 'swipedown', move);
 };
