@@ -154,8 +154,8 @@ Swipe.prototype.ontouchend = function(e){
   this.emit('swipeend', move);
 
   if (Math.abs(move.dx) > this._threshold)
-    this.emit(move.dx < 0 'swipeleft' : 'swiperight', move);
+    this.emit(move.dx < 0 ? 'swipeleft' : 'swiperight', move);
 
   if (Math.abs(move.dy) > this._threshold)
-    this.emit(move.dy < 0 'swipeup' : 'swipedown', move);
+    this.emit(move.dy < 0 ? 'swipeup' : 'swipedown', move);
 };
