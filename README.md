@@ -4,8 +4,13 @@ Swipe component with touch support
 
 ## Installation
 
-    $ component install enricomarino/swipe
-    
+    $ component install Swatinem/swipe
+
+## Acknowledgements
+
+Forked from [enricomarino/swipe](https://github.com/enricomarino/swipe)
+with code copied from [component/swipe](https://github.com/component/swipe)
+
 ## License
 
 (The MIT License)

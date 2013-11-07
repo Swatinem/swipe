@@ -1,8 +1,10 @@
+
 /**
- * Dependencies
+ * Module dependencies.
  */
 
 var Emitter = require('emitter');
+var events = require('events');
 
 /**
  * Expose `Swipe`.
@@ -18,63 +20,46 @@ module.exports = Swipe;
  */
 
 function Swipe(el) {
-  if (!(this instanceof Swipe)) {
-    return new Swipe(el);
-  }
-  Emitter.call(this);
-  if (!el) {
-    throw new TypeError('Swipe() requires an element');
-  }
+  if (!(this instanceof Swipe)) return new Swipe(el);
+  if (!el) throw new TypeError('Swipe() requires an element');
   this.el = el;
-  this.onstart = this.ontouchstart.bind(this);
-  this.onmove = this.ontouchmove.bind(this);
-  this.onend = this.ontouchend.bind(this);
-
+  this.move = null;
   this.bind();
 }
 
 /**
- * Inherit from `Emitter`.
+ * Mixin `Emitter`.
  */
 
-Swipe.prototype = Object.create(Emitter.prototype);
-Swipe.prototype.constructor = Swipe;
+Emitter(Swipe.prototype);
 
 /**
- * bind
- * Bind event handlers
+ * Bind event handlers.
  *
- * @return {Swipe} this for chaining
  * @api public
  */
 
-Swipe.prototype.bind = function () {
-  var el = this.el;
-  el.addEventListener('mousedown', this.onstart);
-  el.addEventListener('mousemove', this.onmove);
-  el.addEventListener('touchstart', this.onstart);
-  el.addEventListener('touchmove', this.onmove);
-  document.addEventListener('mouseup', this.onend);
-  document.addEventListener('touchend', this.onend);
-  return this;
+Swipe.prototype.bind = function(){
+  this.events = events(this.el, this);
+  this.events.bind('mousedown', 'ontouchstart');
+  this.events.bind('mousemove', 'ontouchmove');
+  this.events.bind('touchstart');
+  this.events.bind('touchmove');
+
+  this.docEvents = events(document, this);
+  this.docEvents.bind('mouseup', 'ontouchend');
+  this.docEvents.bind('touchend');
 };
 
 /**
- * unbind
  * Unbind event handlers.
  *
- * @return {Swipe} this for chaining
  * @api public
  */
 
-Swipe.prototype.unbind = function () {
-  el.removeEventListener('mousedown', this.onstart);
-  el.removeEventListener('mousemove', this.onmove);
-  el.removeEventListener('touchstart', this.onstart);
-  el.removeEventListener('touchmove', this.onmove);
-  document.removeEventListener('mouseup', this.onend);
-  document.removeEventListener('touchend', this.onend);
-  return this;
+Swipe.prototype.unbind = function(){
+  this.events.unbind();
+  this.docEvents.unbind();
 };
 
 /**
@@ -86,6 +71,7 @@ Swipe.prototype.unbind = function () {
 
 Swipe.prototype.ontouchstart = function (e){
   e.stopPropagation();
+  e.preventDefault();
   if (e.touches) {
     e = e.touches[0];
   }
@@ -97,6 +83,7 @@ Swipe.prototype.ontouchstart = function (e){
     dy: 0,
     dt: 0
   };
+  this.emit('swipestart', this.move);
 };
 
 /**
@@ -145,6 +132,7 @@ Swipe.prototype.ontouchend = function(e){
   }
 
   var move = this.move;
+  this.move = null;
 
   move.x = e.pageX;
   move.y = e.pageY;

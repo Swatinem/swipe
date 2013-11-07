@@ -1,9 +1,10 @@
 {
   "name": "swipe",
-  "repo": "enricomarino/swipe",
+  "repo": "Swatinem/swipe",
   "description": "Swipe component with touch support",
   "dependencies": {
-    "apily/emitter": "*"
+    "component/events": "1.0.2",
+    "component/emitter": "1.0.0"
   },
   "scripts": ["index.js"],
   "license": "MIT"
